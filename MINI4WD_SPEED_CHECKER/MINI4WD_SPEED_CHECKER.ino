@@ -20,12 +20,16 @@ const double perimeter = 3.14 * 25; // in milimeter
 double maxKmh= 0;
 unsigned long previousTimerMillis = 0;
 static unsigned long previousTime = 0;
+
+// battery relater variable
 int batteryPercentage = 0;
 int adcVal = 0;
 double batVolt = 0.6;
 const unsigned long adcReadPeriod = 5;
 unsigned long previousAdcReadMillis;
 unsigned int adcCounter = 0;
+unsigned int batteryPercentages[15] = {100, 95, 90, 85, 80, 75, 70, 65, 60, 50, 40, 30, 20, 10, 0};
+double batteryVoltages[15] = {4.2, 4.15, 4.11, 4.08, 4.02, 3.98, 3.95, 3.91, 3.87, 3.84, 3.8, 3.77, 3.73, 3.69, 3.27};
 
 void setup() {
   Wire.begin(SDA, SCL);

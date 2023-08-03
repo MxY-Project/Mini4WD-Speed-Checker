@@ -11,7 +11,11 @@ int ExtractDecimalPart(double Value) {
 }
 
 int getBatteryPercentage(){
-  return ((batVolt - 3.0) / (4.2 - 3.0)) * 100;  // convert to percentage
+  //return ((batVolt - 3.0) / (4.2 - 3.0)) * 100;  // convert to percentage
+  for(int i = 0 ; i < sizeof(batteryVoltages) / sizeof(batteryVoltages[0]); i++){
+    if(batVolt >= batteryVoltages[i]) return batteryPercentages[i];
+  }
+  return 0;
 }
 
 void setBatteryVolt(){
