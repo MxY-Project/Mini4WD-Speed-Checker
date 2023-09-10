@@ -11,17 +11,24 @@
 #define SCREEN_ADDRESS 0x3C 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+char str_cnt[6];
+
+// speed sensor related variable
 const int sensorPin = 14;  
 volatile int counter = 0;
-char str_cnt[6];
 volatile int rpm = 0;
 unsigned long previousMillis = 0;
-const double perimeter = 3.14 * 25; // in milimeter
-double maxKmh= 0;
-unsigned long previousTimerMillis = 0;
-static unsigned long previousTime = 0;
+const double perimeter = 3.14 * 25; // perimeter of speed encoder in milimeter
+double maxKmh = 0;
+const int numReadings  = 10;
+int readIndex  = 0;
+long totalRpm  = 0;
+int rpm_list[numReadings];
 
-// battery relater variable
+// timer related variable
+unsigned long previousTimerMillis = 0;
+
+// battery related variable
 int batteryPercentage = 0;
 int adcVal = 0;
 double batVolt = 0.6;
@@ -34,7 +41,7 @@ double batteryVoltages[15] = {4.2, 4.15, 4.11, 4.08, 4.02, 3.98, 3.95, 3.91, 3.8
 void setup() {
   Wire.begin(SDA, SCL);
   Wire.setClock(400000);
-  Serial.begin(9600);
+
   display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
   
   attachInterrupt(digitalPinToInterrupt(sensorPin), sensor_handler, FALLING);
@@ -50,13 +57,13 @@ void setup() {
   
   pinMode(sensorPin, INPUT_PULLUP);
 
-  previousTime = millis();
 }
 
 void loop() {
    if (counter >= 1) { 
       unsigned long currentMillis = millis();
       rpm = counter * (60 * 1000 / (currentMillis - previousMillis)); // 60 * 10000 to convert from miliseconds to minutes
+      rpm = movingAverage(rpm); // perform smoothing
       previousMillis = currentMillis;
       counter = 0;
 

@@ -1,6 +1,5 @@
 void show_rpm(int rpm_val){  
     display.clearDisplay();
-
     set_header("Speed Checker");
     set_kmh(rpm_val);
     set_max_kmh(rpm_val);
@@ -82,8 +81,8 @@ void set_header(char *label){
   display.drawLine(0, 14, 127, 14, WHITE);
 }
 
-void set_battery(){
-  batteryPercentage = (int)(getBatteryPercentage() / 10.0); // scale from 1 - 10
+void set_battery(){  
+  batteryPercentage = round((float)getBatteryPercentage() / 10.0); // scale from 1 - 10  
   batteryPercentage = min(10, max(0, batteryPercentage)); // safe bound value to 1 - 10
   display.drawRect(128 - 18, 4, 14, 8, WHITE);
   display.drawRect(128 -  4, 5,  2, 6, WHITE);

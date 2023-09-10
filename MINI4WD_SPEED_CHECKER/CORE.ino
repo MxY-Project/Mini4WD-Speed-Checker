@@ -11,9 +11,12 @@ int ExtractDecimalPart(double Value) {
 }
 
 int getBatteryPercentage(){
-  //return ((batVolt - 3.0) / (4.2 - 3.0)) * 100;  // convert to percentage
-  for(int i = 0 ; i < sizeof(batteryVoltages) / sizeof(batteryVoltages[0]); i++){
-    if(batVolt >= batteryVoltages[i]) return batteryPercentages[i];
+  for(int i = 0; i < sizeof(batteryVoltages) / sizeof(batteryVoltages[0]); i++){
+    if(i > 0 ) {
+      if( batVolt >= batteryVoltages[i] && batVolt <= batteryVoltages[i - 1] ) {
+        return batteryPercentages[i - 1];
+      }
+    }
   }
   return 0;
 }
@@ -26,17 +29,37 @@ void setBatteryVolt(){
   // Vout max = 0.84 ~> 860 adc val (when 1v ~> 1023 adc val)
   // Vout min = 0.60 ~> 614 adc val
 
-  if (millis() - previousAdcReadMillis >= adcReadPeriod && adcCounter < 10) {
+  if (millis() - previousAdcReadMillis >= adcReadPeriod && adcCounter < 20) {
     adcVal = adcVal + min(analogRead(A0), 860); //Read analog Voltage
     previousAdcReadMillis += adcReadPeriod;
     adcCounter = adcCounter + 1;
   }
-  if(adcCounter == 10){
-    batVolt = (float) adcVal / 10.0;           //Find average of 10 values
+  if(adcCounter == 20){
+    batVolt = (float) adcVal / 20.0;           //Find average of 20 values
     batVolt = (float) (batVolt / 860.0) * 4.2; //Convert to voltage
-    batVolt = max(3.0, min(4.2, batVolt));    //Make sure value between 0.6v - 0.84v
+    batVolt = max(3.0, min(4.2, batVolt));     //Make sure value between 3.0v - 4.2v
     
     adcCounter = 0;
     adcVal = 0;
   }
+}
+
+long movingAverage(int rpm_val) {
+  ////Perform average on rpm_list
+  long average;
+  // subtract the last reading:
+  totalRpm = totalRpm - rpm_list[readIndex];
+  // read the sensor:
+  rpm_list[readIndex] = rpm_val;
+  // add value to total:
+  totalRpm = totalRpm + rpm_list[readIndex];
+  // handle index
+  readIndex = readIndex + 1;
+  if (readIndex >= numReadings) {
+    readIndex = 0;
+  }
+  // calculate the average:
+  average = totalRpm / numReadings;
+
+  return average;
 }
